@@ -1,0 +1,52 @@
+name: 채용공고 수집 및 배포
+
+on:
+  schedule:
+    # 매월 1일 오전 9시 (KST = UTC+9, 즉 UTC 00:00)
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+    # 수동 실행 (GitHub Actions 탭에서 "Run workflow" 버튼)
+
+permissions:
+  contents: write
+
+jobs:
+  collect-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: jobs/package.json
+
+      - name: 의존성 설치
+        working-directory: jobs
+        run: npm install
+
+      - name: 채용공고 수집
+        working-directory: jobs
+        env:
+          JOBS_API_KEY_1: ${{ secrets.JOBS_API_KEY_1 }}
+          JOBS_API_KEY_2: ${{ secrets.JOBS_API_KEY_2 }}
+        run: npm run collect
+
+      - name: 변경사항 커밋 & 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add jobs/data/jobs.json
+          git diff --cached --quiet || git commit -m "chore: 채용공고 자동 수집 $(date +'%Y-%m-%d')"
+          git push
+
+      - name: GitHub Pages 배포
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./jobs
+          destination_dir: jobs
+          keep_files: false
