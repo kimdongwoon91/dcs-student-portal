@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>채용공고 | 대전도시과학고</title>
+  <style>
+    /* ── 디자인 토큰 ── */
+    :root {
+      --c-bg: #f5f6fa;
+      --c-surface: #ffffff;
+      --c-border: #e2e5ed;
+      --c-text: #1a1d27;
+      --c-text-sub: #6b7280;
+      --c-primary: #2563eb;
+      --c-primary-light: #eff6ff;
+      --c-accent-mob: #f59e0b;    /* 모빌리티과 */
+      --c-accent-elec: #10b981;   /* 전기배터리과 */
+      --c-accent-arch: #8b5cf6;   /* 건축리모델링과 */
+      --c-accent-drone: #ef4444;  /* 드론지형정보과 */
+      --c-badge-edu: #e0f2fe;
+      --c-badge-edu-text: #0369a1;
+      --radius: 12px;
+      --shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--c-bg);
+      color: var(--c-text);
+      min-height: 100vh;
+    }
+
+    /* ── 헤더 ── */
+    header {
+      background: var(--c-surface);
+      border-bottom: 1px solid var(--c-border);
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .logo { font-size: 15px; font-weight: 700; color: var(--c-primary); text-decoration: none; }
+    .logo span { font-weight: 400; color: var(--c-text-sub); margin-left: 6px; font-size: 13px; }
+    #last-updated { font-size: 12px; color: var(--c-text-sub); }
+
+    /* ── 학과 탭 ── */
+    .dept-tabs {
+      background: var(--c-surface);
+      border-bottom: 1px solid var(--c-border);
+      padding: 0 24px;
+      overflow-x: auto;
+    }
+    .dept-tabs-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+    }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--c-text-sub);
+      border-bottom: 3px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--c-text); }
+    .tab-btn.active { color: var(--c-primary); border-bottom-color: var(--c-primary); font-weight: 700; }
+    .tab-btn[data-dept="모빌리티과"].active { color: var(--c-accent-mob); border-bottom-color: var(--c-accent-mob); }
+    .tab-btn[data-dept="전기배터리과"].active { color: var(--c-accent-elec); border-bottom-color: var(--c-accent-elec); }
+    .tab-btn[data-dept="건축리모델링과"].active { color: var(--c-accent-arch); border-bottom-color: var(--c-accent-arch); }
+    .tab-btn[data-dept="드론지형정보과"].active { color: var(--c-accent-drone); border-bottom-color: var(--c-accent-drone); }
+
+    /* ── 컨텐츠 영역 ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* ── 필터 바 ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-bar label { font-size: 13px; color: var(--c-text-sub); white-space: nowrap; }
+    select {
+      padding: 8px 12px;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--c-surface);
+      color: var(--c-text);
+      cursor: pointer;
+    }
+    .filter-count {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--c-text-sub);
+    }
+    .filter-count strong { color: var(--c-text); }
+
+    /* ── 공고 카드 그리드 ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow .15s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .org-type-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 100px;
+      background: #f3f4f6;
+      color: var(--c-text-sub);
+    }
+    .org-type-badge.공기업 { background: #fef3c7; color: #92400e; }
+    .org-type-badge.지자체 { background: #e0f2fe; color: #075985; }
+
+    .dday {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .dday.urgent { background: #fee2e2; color: #b91c1c; }
+    .dday.soon   { background: #fef3c7; color: #92400e; }
+    .dday.normal { background: #f0fdf4; color: #166534; }
+    .dday.today  { background: #fee2e2; color: #b91c1c; animation: pulse 1s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--c-text);
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--c-text-sub);
+    }
+    .meta-item { display: flex; align-items: center; gap: 4px; }
+    .meta-sep { color: var(--c-border); }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+    .tag.dept-mob   { background: #fef3c7; color: #92400e; }
+    .tag.dept-elec  { background: #d1fae5; color: #065f46; }
+    .tag.dept-arch  { background: #ede9fe; color: #5b21b6; }
+    .tag.dept-drone { background: #fee2e2; color: #991b1b; }
+    .tag.edu        { background: var(--c-badge-edu); color: var(--c-badge-edu-text); }
+
+    .card-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--c-border);
+    }
+    .btn-detail {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--c-primary);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-detail:hover { background: #1d4ed8; }
+
+    /* ── 빈 상태 ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--c-text-sub);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; }
+
+    /* ── 로딩 ── */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--c-text-sub);
+      font-size: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 16px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .tab-btn { padding: 12px 14px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">대전도시과학고 <span>채용공고</span></a>
+    <span id="last-updated">로딩 중...</span>
+  </div>
+</header>
+
+<nav class="dept-tabs">
+  <div class="dept-tabs-inner">
+    <button class="tab-btn active" data-dept="전체">전체</button>
+    <button class="tab-btn" data-dept="모빌리티과">🔧 모빌리티과</button>
+    <button class="tab-btn" data-dept="전기배터리과">⚡ 전기배터리과</button>
+    <button class="tab-btn" data-dept="건축리모델링과">🏗️ 건축리모델링과</button>
+    <button class="tab-btn" data-dept="드론지형정보과">🛸 드론지형정보과</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="filter-bar">
+    <label for="region-filter">시도</label>
+    <select id="region-filter">
+      <option value="전체">전체 지역</option>
+    </select>
+
+    <label for="org-filter">기관 유형</label>
+    <select id="org-filter">
+      <option value="전체">전체</option>
+      <option value="지자체">지자체 (공무원)</option>
+      <option value="공기업">공기업</option>
+    </select>
+
+    <label for="edu-filter">학력 조건</label>
+    <select id="edu-filter">
+      <option value="전체">전체</option>
+      <option value="학력무관">학력무관</option>
+      <option value="고졸">고졸</option>
+    </select>
+
+    <label for="sort-select">정렬</label>
+    <select id="sort-select">
+      <option value="deadline">마감임박순</option>
+      <option value="recent">최신등록순</option>
+    </select>
+
+    <span class="filter-count"><strong id="count">0</strong>건</span>
+  </div>
+
+  <div id="cards-container" class="loading">공고를 불러오는 중...</div>
+</div>
+
+<script>
+  const DEPT_CLASS = {
+    '모빌리티과': 'dept-mob',
+    '전기배터리과': 'dept-elec',
+    '건축리모델링과': 'dept-arch',
+    '드론지형정보과': 'dept-drone',
+  };
+
+  let allJobs = [];
+  let activeDept = '전체';
+
+  // D-Day 계산
+  function calcDday(dateStr) {
+    if (!dateStr) return null;
+    const today = new Date(new Date().toISOString().slice(0, 10));
+    const end = new Date(dateStr);
+    const diff = Math.round((end - today) / 86400000);
+    return diff;
+  }
+
+  function ddayLabel(diff) {
+    if (diff === null) return '';
+    if (diff < 0) return '마감';
+    if (diff === 0) return 'D-DAY';
+    return `D-${diff}`;
+  }
+
+  function ddayClass(diff) {
+    if (diff === null || diff < 0) return 'urgent';
+    if (diff === 0) return 'today';
+    if (diff <= 7) return 'urgent';
+    if (diff <= 14) return 'soon';
+    return 'normal';
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    return dateStr.replace(/-/g, '.');
+  }
+
+  function renderCard(job) {
+    const diff = calcDday(job.deadline);
+    const dLabel = ddayLabel(diff);
+    const dClass = ddayClass(diff);
+
+    const deptTags = (job.departments || [])
+      .map(d => `<span class="tag ${DEPT_CLASS[d] || ''}">${d}</span>`)
+      .join('');
+
+    const eduTag = job.education !== '기타'
+      ? `<span class="tag edu">${job.education}</span>`
+      : '';
+
+    return `
+      <div class="card">
+        <div class="card-top">
+          <span class="org-type-badge ${job.org_type}">${job.org_type}</span>
+          ${dLabel ? `<span class="dday ${dClass}">${dLabel}</span>` : ''}
+        </div>
+        <div>
+          <div class="card-title">${escHtml(job.title)}</div>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item">🏢 ${escHtml(job.organization)}</span>
+          <span class="meta-sep">|</span>
+          <span class="meta-item">📍 ${escHtml(job.region)}</span>
+          <span class="meta-sep">|</span>
+          <span class="meta-item">📅 마감 ${formatDate(job.deadline)}</span>
+        </div>
+        <div class="card-tags">
+          ${deptTags}
+          ${eduTag}
+        </div>
+        <div class="card-footer">
+          <a href="${escHtml(job.source_url)}" target="_blank" rel="noopener" class="btn-detail">공고 보기 →</a>
+        </div>
+      </div>
+    `;
+  }
+
+  function escHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function applyFilters() {
+    const region = document.getElementById('region-filter').value;
+    const orgType = document.getElementById('org-filter').value;
+    const edu = document.getElementById('edu-filter').value;
+    const sort = document.getElementById('sort-select').value;
+
+    let jobs = allJobs.filter(j => {
+      if (activeDept !== '전체' && !(j.departments || []).includes(activeDept)) return false;
+      if (region !== '전체' && j.region !== region) return false;
+      if (orgType !== '전체' && j.org_type !== orgType) return false;
+      if (edu !== '전체' && j.education !== edu) return false;
+      return true;
+    });
+
+    if (sort === 'recent') {
+      jobs = [...jobs].sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''));
+    }
+
+    document.getElementById('count').textContent = jobs.length;
+
+    const container = document.getElementById('cards-container');
+    if (jobs.length === 0) {
+      container.className = '';
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <p>현재 조건에 맞는 공고가 없어요.</p>
+        </div>
+      `;
+    } else {
+      container.className = 'cards-grid';
+      container.innerHTML = jobs.map(renderCard).join('');
+    }
+  }
+
+  // 시도 드롭다운 채우기
+  function populateRegions(jobs) {
+    const regions = [...new Set(jobs.map(j => j.region).filter(Boolean))].sort();
+    const sel = document.getElementById('region-filter');
+    regions.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = r;
+      sel.appendChild(opt);
+    });
+  }
+
+  // 이벤트 연결
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeDept = btn.dataset.dept;
+      applyFilters();
+    });
+  });
+
+  ['region-filter', 'org-filter', 'edu-filter', 'sort-select'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applyFilters);
+  });
+
+  // 데이터 로드
+  fetch('data/jobs.json?v=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      allJobs = data.jobs || [];
+
+      const lastEl = document.getElementById('last-updated');
+      if (data.collected_at) {
+        const d = new Date(data.collected_at);
+        lastEl.textContent = `최종 갱신: ${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+      } else {
+        lastEl.textContent = '데이터 없음';
+      }
+
+      if (allJobs.length === 0) {
+        document.getElementById('cards-container').className = '';
+        document.getElementById('cards-container').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🔍</div>
+            <p>아직 수집된 공고가 없어요. 첫 수집 후 표시됩니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      populateRegions(allJobs);
+      applyFilters();
+    })
+    .catch(() => {
+      document.getElementById('cards-container').className = '';
+      document.getElementById('cards-container').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>데이터를 불러올 수 없어요.</p>
+        </div>
+      `;
+    });
+</script>
+</body>
+</html>
