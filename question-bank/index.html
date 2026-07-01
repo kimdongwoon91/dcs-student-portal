@@ -569,8 +569,8 @@ window.storage = {
 
   // ---------- 문제 관리 (관리자, 트랙별) ----------
   function newQuestionDraft(track){ return {id:null, trackId: track.id, category: track.categories[0].name, text:"", choices:["","","",""], answer:0, explanation:""}; }
-  function editQuestion(q){ state.adminEdit = JSON.parse(JSON.stringify(q)); render(); }
-  function newQuestion(){ state.adminEdit = newQuestionDraft(getTrack(state.adminTrackId)); render(); }
+  function editQuestion(q){ state.adminEdit = JSON.parse(JSON.stringify(q)); state.bulkImportOpen = false; render(); }
+  function newQuestion(){ state.adminEdit = newQuestionDraft(getTrack(state.adminTrackId)); state.bulkImportOpen = false; render(); }
   async function saveQuestionDraft(){
     const d = state.adminEdit;
     if(!d.text.trim() || d.choices.some(c=>!c.trim())){ alert("문제 내용과 4개의 선택지를 모두 입력해 주세요."); return; }
@@ -1258,16 +1258,16 @@ window.storage = {
     ta.oninput = (e)=>{ d.text = e.target.value; };
     card.appendChild(ta);
 
-    card.appendChild(el('label',{class:'knb-label'},[txt('선택지 (정답에 라디오 표시)')]));
+    card.appendChild(el('label',{class:'knb-label'},[txt('선택지 (체크박스로 정답 표시)')]));
     d.choices.forEach((c,i)=>{
       const row = el('div',{style:'display:flex;gap:8px;align-items:center;margin-bottom:7px;'});
-      const radio = el('input',{type:'radio', name:'knbAnswerRadio'});
-      radio.checked = d.answer===i;
-      radio.onchange = ()=>{ d.answer = i; };
+      const check = el('input',{type:'checkbox', style:'width:20px;height:20px;flex-shrink:0;cursor:pointer;'});
+      check.checked = d.answer===i;
+      check.onchange = ()=>{ d.answer = i; render(); };
       const ci = el('input',{type:'text', placeholder:(i+1)+'번 선택지', style:'flex:1;'});
       ci.value = c;
       ci.oninput = (e)=>{ d.choices[i] = e.target.value; };
-      row.appendChild(radio); row.appendChild(ci);
+      row.appendChild(check); row.appendChild(ci);
       card.appendChild(row);
     });
 
