@@ -190,7 +190,7 @@ window.storage = {
 
 <div class="knb-root" id="knbRoot">
   <div class="knb-top">
-    <div class="knb-brand">
+    <div class="knb-brand" id="knbBrand" style="cursor:pointer;">
       <div class="knb-mark"><img src="data:image/png;base64,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" alt="DUSH"></div>
       <div class="knb-title-block">
         <span class="knb-eyebrow" id="knbEyebrow">DUSH · 대전도시과학고등학교</span>
@@ -367,6 +367,12 @@ window.storage = {
       state.quiz = null;
     }
     setScreen(view);
+  }
+
+  function goHome(){
+    if(state.isAdmin) go('trackAdmin');
+    else if(state.student) go('trackSelect');
+    else go('login');
   }
 
   // ---------- 로그인 ----------
@@ -1470,6 +1476,8 @@ window.storage = {
     wrap.appendChild(listCard);
     return wrap;
   }
+
+  document.getElementById('knbBrand').onclick = goHome;
 
   loadData();
 })();
